@@ -22,7 +22,7 @@ class OxidizedCollector(object):
 
 if __name__ == "__main__":
     print('hello')
-    start_http_server(9001)
+    start_http_server(5002)
     config = configparser.ConfigParser()
     config.read('oxidized.conf')
     REGISTRY.register(OxidizedCollector(config['default']['url']))
