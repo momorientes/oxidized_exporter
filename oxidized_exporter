@@ -1,44 +1,32 @@
 #!/usr/bin/env python3
 
 import requests
-from flask import Flask, request
 import configparser
-
-app = Flask(__name__)
-
-@app.route('/metrics', methods=['GET', 'POST'])
-def metrics():
-    if request.method == "GET":
-        config = parse_config()
-        url = config['default']['url']
-        nodes = get_nodes(url)
-        response = get_response(nodes)
-
-        return "\n".join(response) + "\n"
+from prometheus_client import start_http_server, Metric, REGISTRY
+import time
 
 
-def get_response(nodes):
-    response = []
-    response.append("# HELP oxidized_status Status of last oxidized backup")
-    response.append("# TYPE oxidized_status gauge")
-    for node in nodes:
-        status = 1 if node['status'] == 'success' else 0
-        response.append("oxidized_status{{instance=\"{}\"}} {}".format(node['name'], status))
+class OxidizedCollector(object):
+    def __init__(self, oxidized_url):
+        self.oxidized_url = oxidized_url
 
-    return response
+    def collect(self):
+        response = [{'name': 'foo', 'status': 'success'}]
+        metric = Metric('oxidized_status', 'Most recent oxidized status', 'gauge')
+        for node in response:
+            status = 1 if node['status'] == 'success' else 0
+            metric.add_sample('oxidized_status', value=status, labels={'instance': node['name']})
+            print("request!")
 
-def parse_config():
-    config = configparser.ConfigParser()
-    config.read('oxidized.conf')
-
-    return config
-
-def get_nodes(url):
-    r = requests.get(url + '/nodes.json')
-    nodes = r.json()
-
-    return nodes 
+        yield metric
 
 if __name__ == "__main__":
-    app.run(port=5002)
+    print('hello')
+    start_http_server(9001)
+    config = configparser.ConfigParser()
+    config.read('oxidized.conf')
+    REGISTRY.register(OxidizedCollector(config['default']['url']))
+
+    while True:
+        time.sleep(1)
 
