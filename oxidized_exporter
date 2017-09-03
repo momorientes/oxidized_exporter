@@ -11,7 +11,7 @@ class OxidizedCollector(object):
         self.oxidized_url = oxidized_url
 
     def collect(self):
-        response = [{'name': 'foo', 'status': 'success'}]
+        response = requests.get(self.oxidized_url + "/nodes.json").json()
         metric = Metric('oxidized_status', 'Most recent oxidized status', 'gauge')
         for node in response:
             status = 1 if node['status'] == 'success' else 0
