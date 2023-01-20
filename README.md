@@ -9,7 +9,7 @@ cd /opt/
 git clone https://github.com/momorientes/oxidized_exporter.git
 cd oxidized_exporter
 cp oxidized.conf.sample oxidized.conf
-vim oxidized.conf #add your url
+vim oxidized.conf #modify as needed
 virtualenv -p python3 venv
 source venv/bin/activate
 pip install -r requirements.txt

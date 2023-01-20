@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-import requests
 import configparser
-from prometheus_client import start_http_server, Metric, REGISTRY
 import time
+
+import requests
+from prometheus_client import REGISTRY, Metric, start_http_server
 
 
 class OxidizedCollector(object):
@@ -12,21 +13,25 @@ class OxidizedCollector(object):
 
     def collect(self):
         response = requests.get(self.oxidized_url + "/nodes.json").json()
-        metric = Metric('oxidized_status', 'Most recent oxidized status', 'gauge')
+        metric = Metric("oxidized_status", "Most recent oxidized status", "gauge")
         for node in response:
-            status = 1 if node['status'] == 'success' else 0
-            metric.add_sample('oxidized_status', value=status, labels={'instance': node['name']})
-            print("request!")
+            status = 1 if node["status"] == "success" else 0
+            metric.add_sample(
+                "oxidized_status", value=status, labels={"instance": node["name"]}
+            )
 
         yield metric
 
+
 if __name__ == "__main__":
-    print('hello')
-    start_http_server(5002)
     config = configparser.ConfigParser()
-    config.read('oxidized.conf')
-    REGISTRY.register(OxidizedCollector(config['default']['url']))
+    config.read("oxidized.conf")
+    REGISTRY.register(OxidizedCollector(config["default"]["url"]))
+    print("Starting oxidized_exporter")
+    start_http_server(
+        addr=config["default"]["addr"], port=int(config["default"]["port"])
+    )
+    print(f"Listening on {config['default']['addr']}:{config['default']['port']}")
 
     while True:
         time.sleep(1)
-
