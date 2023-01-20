@@ -1,2 +1,4 @@
 [default]
 url = https://oxidized.domain.net
+addr = 0.0.0.0
+port = 5002
