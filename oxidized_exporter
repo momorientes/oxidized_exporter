@@ -17,7 +17,7 @@ class OxidizedCollector(object):
         for node in response:
             status = 1 if node["status"] == "success" else 0
             metric.add_sample(
-                "oxidized_status", value=status, labels={"instance": node["name"]}
+                "oxidized_status", value=status, labels={config["default"]["label"]: node["name"]}
             )
 
         yield metric
